@@ -1,0 +1,50 @@
+version: "3.2"
+
+services:
+  php:
+    image: php:8.0.18-fpm
+    volumes:
+      - ./DocumentRoot:/var/www/html
+    networks:
+      - backend
+      
+  nginx:
+    image: nginx:latest
+    ports:
+      - 6666:80
+    volumes:
+      - ./default.conf:/etc/nginx/conf.d/default.conf
+      - ./DocumentRoot:/var/www/html
+    depends_on:
+      - php
+    networks:
+      - backend
+      - frontend
+      
+  mysql:
+    image: mysql
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: test_db
+    volumes:
+      - mysql_vol:/var/lib/mysql
+    networks:
+      - backend
+
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    links:
+      - 'mysql:db'
+    ports:
+      - 6001:80
+    networks:
+      - backend
+
+volumes:
+  mysql_vol:
+
+networks:
+  frontend:
+  backend:
+
